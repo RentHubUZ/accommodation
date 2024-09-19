@@ -12,7 +12,7 @@ type Config struct {
 	ACCOMMODATION_SERVICE string
 	DB_PASSWORD     string
 	DB_HOST         string
-	DB_PORT         string
+	DB_PORT         int
 	DB_USER         string
 	DB_NAME         string
 }
@@ -30,7 +30,7 @@ func Load() Config {
 
 	config := Config{}
 	config.DB_HOST = cast.ToString(Coalesce("DB_HOST", "secret"))
-	config.DB_PORT = cast.ToString(Coalesce("DB_PORT", "secret"))
+	config.DB_PORT = cast.ToInt(Coalesce("DB_PORT", "secret"))
 	config.DB_USER = cast.ToString(Coalesce("DB_USER", "secret"))
 	config.DB_PASSWORD = cast.ToString(Coalesce("DB_PASSWORD", "secret"))
 	config.DB_NAME = cast.ToString(Coalesce("DB_NAME", "secret"))

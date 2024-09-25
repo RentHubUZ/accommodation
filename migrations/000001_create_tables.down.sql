@@ -1,1 +1,1 @@
-DROP Table IF EXISTS houses;
+DROP Table IF EXISTS properties;

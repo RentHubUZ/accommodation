@@ -15,7 +15,7 @@ CREATE TABLE "properties" (
   "lease_terms" TEXT,
   "lease_duration" INT,
   "top_status" BOOL DEFAULT FALSE,
-  "location" GEOGRAPHY(Point, 4326),  -- Yangi field qo'shildi
+  "location" GEOGRAPHY(Point, 4326), 
   "created_at" TIMESTAMP DEFAULT (NOW()),
   "updated_at" TIMESTAMP DEFAULT (NOW()),
   "deleted_at" TIMESTAMP

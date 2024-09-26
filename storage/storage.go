@@ -3,12 +3,14 @@ package storage
 import (
 	pb "accommodation/genproto/accommodation"
 	pt "accommodation/genproto/tariff"
+	top "accommodation/genproto/top-properties"
 	"context"
 )
 
 type IStorage interface {
 	House() IHouseStorage
 	Tariff() ITariffStorage
+	TopProperties() ITopPropertiesStorage
 	Close()
 }
 
@@ -26,4 +28,12 @@ type ITariffStorage interface {
 	GetAll(ctx context.Context, req *pt.GetAllTariffReq) (*pt.GetAllTariffRes, error)
 	Update(ctx context.Context, req *pt.UpdateTariffReq) (*pt.UpdateTariffRes, error)
 	Delete(ctx context.Context, req *pt.DeleteTariffReq) (*pt.DeleteTariffRes, error)
+}
+
+type ITopPropertiesStorage interface {
+	Create(ctx context.Context, req *top.CreateTopPropertyReq) (*top.CreateTopPropertyRes, error)
+	Get(ctx context.Context, req *top.GetTopPropertyReq) (*top.GetTopPropertyRes, error)
+	GetAll(ctx context.Context, req *top.GetAllTopPropertyReq) (*top.GetAllTopPropertyRes, error)
+	Update(ctx context.Context, req *top.UpdateTopPropertyReq) (*top.UpdateTopPropertyRes, error)
+	Delete(ctx context.Context, req *top.DeleteTopPropertyReq) (*top.DeleteTopPropertyRes, error)
 }

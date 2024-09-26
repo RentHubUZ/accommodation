@@ -36,8 +36,8 @@ func (h *HousesRepository) CreateHouse(ctx context.Context, req *pb.CreateHouseR
 							description, roommate_count, lease_terms, lease_duration, 
 							top_status, location, created_at, updated_at
 			  			) values (
-			  			  	$1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, 
-			  			  	ST_SetSRID(ST_MakePoint($14, $15), 4326), $16, $17)`
+			  			  	$1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, 
+			  			  	ST_SetSRID(ST_MakePoint($15, $16), 4326), $17, $18)`
 
 	property_id := uuid.NewString()
 	newtime := time.Now()
@@ -111,7 +111,7 @@ func (h *HousesRepository) UpdateHouse(ctx context.Context, req *pb.UpdateHouseR
 	query_get_property := `SELECT owner_id, address, price, property_type, bedrooms, bathrooms, 
 								  square_footage, listing_status, description, roommate_count, 
 								  lease_terms, lease_duration, top_status, 
-								  ST_X(location) as latitude, ST_Y(location) as longitude, created_at, updated_at
+								  ST_AsText(location)
 						   FROM properties WHERE id = $1 AND deleted_at IS NULL`
 
 	var oldProperty struct {
@@ -128,10 +128,7 @@ func (h *HousesRepository) UpdateHouse(ctx context.Context, req *pb.UpdateHouseR
 		LeaseTerms    string
 		LeaseDuration int32
 		TopStatus     bool
-		Latitude      float32
-		Longitude     float32
-		CreatedAt     string
-		UpdatedAt     string
+		Location      string 
 	}
 
 	err = tx.QueryRowContext(ctx, query_get_property, req.Id).Scan(
@@ -139,7 +136,7 @@ func (h *HousesRepository) UpdateHouse(ctx context.Context, req *pb.UpdateHouseR
 		&oldProperty.Bedrooms, &oldProperty.Bathrooms, &oldProperty.SquareFootage,
 		&oldProperty.ListingStatus, &oldProperty.Description, &oldProperty.RoommateCount,
 		&oldProperty.LeaseTerms, &oldProperty.LeaseDuration, &oldProperty.TopStatus,
-		&oldProperty.Latitude, &oldProperty.Longitude, &oldProperty.CreatedAt, &oldProperty.UpdatedAt)
+		&oldProperty.Location)
 	if err != nil {
 		tx.Rollback()
 		h.Log.ErrorContext(ctx, fmt.Sprintf("error reading property: %v", err.Error()))
@@ -195,23 +192,27 @@ func (h *HousesRepository) UpdateHouse(ctx context.Context, req *pb.UpdateHouseR
 		leaseDuration = oldProperty.LeaseDuration
 	}
 	topStatus := req.TopStatus
+
 	latitude := req.Latitude
-	if latitude == 0 {
-		latitude = oldProperty.Latitude
-	}
 	longitude := req.Longitude
-	if longitude == 0 {
-		longitude = oldProperty.Longitude
-	}
-	createdAt := req.CreatedAt
-	if createdAt == "" {
-		createdAt = oldProperty.CreatedAt
-	}
-	updatedAt := req.UpdatedAt
-	if updatedAt == "" {
-		updatedAt = oldProperty.UpdatedAt
+
+	if latitude == 0 || longitude == 0 {
+		var lat, lng float64
+		_, err := fmt.Sscanf(oldProperty.Location, "POINT(%f %f)", &lng, &lat)
+		if err != nil {
+			tx.Rollback()
+			h.Log.ErrorContext(ctx, fmt.Sprintf("error parsing location: %v", err.Error()))
+			return nil, err
+		}
+		if latitude == 0 {
+			latitude = float32(lat)
+		}
+		if longitude == 0 {
+			longitude = float32(lng)
+		}
 	}
 
+	newUpdateTime := time.Now()
 	query_update_property := `UPDATE properties SET 
 								owner_id = $1, address = $2, price = $3, property_type = $4, 
 								bedrooms = $5, bathrooms = $6, square_footage = $7, listing_status = $8, 
@@ -222,7 +223,7 @@ func (h *HousesRepository) UpdateHouse(ctx context.Context, req *pb.UpdateHouseR
 	_, err = tx.ExecContext(ctx, query_update_property,
 		ownerID, address, price, propertyType, bedrooms, bathrooms,
 		squareFootage, listingStatus, description, roommateCount, leaseTerms,
-		leaseDuration, topStatus, latitude, longitude, createdAt, updatedAt, req.Id)
+		leaseDuration, topStatus, latitude, longitude, newUpdateTime, newUpdateTime, req.Id)
 	if err != nil {
 		tx.Rollback()
 		h.Log.ErrorContext(ctx, fmt.Sprintf("error updating property: %v", err.Error()))
@@ -234,7 +235,7 @@ func (h *HousesRepository) UpdateHouse(ctx context.Context, req *pb.UpdateHouseR
 		_, err = tx.ExecContext(ctx, query_delete_images, req.Id)
 		if err != nil {
 			tx.Rollback()
-			h.Log.ErrorContext(ctx, fmt.Sprintf("error deleting property: %v", err.Error()))
+			h.Log.ErrorContext(ctx, fmt.Sprintf("error deleting property images: %v", err.Error()))
 			return nil, err
 		}
 
@@ -243,14 +244,14 @@ func (h *HousesRepository) UpdateHouse(ctx context.Context, req *pb.UpdateHouseR
 			_, err := tx.ExecContext(ctx, query_insert_image, uuid.NewString(), req.Id, imageUrl)
 			if err != nil {
 				tx.Rollback()
-				h.Log.ErrorContext(ctx, fmt.Sprintf("error new adding property_image: %v", err.Error()))
+				h.Log.ErrorContext(ctx, fmt.Sprintf("error adding new property image: %v", err.Error()))
 				return nil, err
 			}
 		}
 	}
 
 	if err := tx.Commit(); err != nil {
-		h.Log.ErrorContext(ctx, fmt.Sprintf("error in commenting the transaction: %v", err.Error()))
+		h.Log.ErrorContext(ctx, fmt.Sprintf("error committing the transaction: %v", err.Error()))
 		return nil, err
 	}
 
@@ -259,7 +260,7 @@ func (h *HousesRepository) UpdateHouse(ctx context.Context, req *pb.UpdateHouseR
 	}, nil
 }
 
-func (h *HousesRepository) GetAllHouse(ctx context.Context, req *pb.GetallHouseReq) ([]*pb.GetAllHouseRes, error) {
+func (h *HousesRepository) GetAllHouse(ctx context.Context, req *pb.GetallHouseReq) (*pb.GetAllHouseRes, error) {
 	limit := req.Limit
 	page := req.Page
 	if limit <= 0 {
@@ -272,8 +273,9 @@ func (h *HousesRepository) GetAllHouse(ctx context.Context, req *pb.GetallHouseR
 
 	query := `SELECT p.id, p.owner_id, p.address, p.price, p.property_type, p.bedrooms, 
 					 p.bathrooms, p.square_footage, p.listing_status, p.description, p.roommate_count, 
-					 p.lease_terms, p.lease_duration, p.top_status, ST_X(p.location) as latitude, 
-					 ST_Y(p.location) as longitude, p.created_at, p.updated_at,
+					 p.lease_terms, p.lease_duration, p.top_status, 
+					 ST_X(p.location::geometry) as latitude, ST_Y(p.location::geometry) as longitude, 
+					 p.created_at, p.updated_at,
 					 ARRAY(SELECT image_url FROM propertyimages WHERE property_id = p.id) as image_url
 			  FROM properties p
 			  WHERE p.deleted_at IS NULL
@@ -287,9 +289,9 @@ func (h *HousesRepository) GetAllHouse(ctx context.Context, req *pb.GetallHouseR
 	}
 	defer rows.Close()
 
-	var houses []*pb.GetAllHouseRes
+	houses := &pb.GetAllHouseRes{}
 	for rows.Next() {
-		var house pb.GetAllHouseRes
+		var house pb.GetAllHouses
 		var imageUrls []string
 
 		err := rows.Scan(
@@ -305,7 +307,7 @@ func (h *HousesRepository) GetAllHouse(ctx context.Context, req *pb.GetallHouseR
 		}
 
 		house.ImageUrl = imageUrls
-		houses = append(houses, &house)
+		houses.House = append(houses.House, &house)
 	}
 
 	if err = rows.Err(); err != nil {
@@ -320,7 +322,7 @@ func (h *HousesRepository) GetByIdHouse(ctx context.Context, req *pb.GetByIdHous
 	query := `SELECT p.id, p.owner_id, p.address, p.price, p.property_type, p.bedrooms, 
 					 p.bathrooms, p.square_footage, p.listing_status, p.description, 
 					 p.roommate_count, p.lease_terms, p.lease_duration, p.top_status, 
-					 ST_X(p.location) as latitude, ST_Y(p.location) as longitude, 
+					 ST_X(p.location::geometry) as latitude, ST_Y(p.location::geometry) as longitude, 
 					 p.created_at, p.updated_at,
 					 ARRAY(SELECT image_url FROM propertyimages WHERE property_id = p.id) as image_url
 			  FROM properties p

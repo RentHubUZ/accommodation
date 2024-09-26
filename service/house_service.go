@@ -42,7 +42,7 @@ func (s *HouseService) UpdateHouse(ctx context.Context,req *pb.UpdateHouseReq) (
 	return res,nil
 }
 
-func (s *HouseService) GetAllHouse(ctx context.Context,req *pb.GetallHouseReq) ([]*pb.GetAllHouseRes, error) {
+func (s *HouseService) GetAllHouse(ctx context.Context,req *pb.GetallHouseReq) (*pb.GetAllHouseRes, error) {
 	res,err := s.User.House().GetAllHouse(ctx,req)
 	if err != nil {
 		s.Log.Error(fmt.Sprintf("Error getting all data from house service: %v",err.Error()))

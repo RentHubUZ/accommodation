@@ -41,6 +41,6 @@ func (p *postgresStorage) Close() {
 	p.db.Close()
 }
 
-func (p *postgresStorage) User() storage.IUserStorage {
+func (p *postgresStorage) User() storage.IHouseStorage {
 	return NewHousesRepository(p.db)
 }

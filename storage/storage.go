@@ -6,11 +6,11 @@ import (
 )
 
 type IStorage interface {
-	User() IUserStorage
+	User() IHouseStorage
 	Close()
 }
 
-type IUserStorage interface {
+type IHouseStorage interface {
 	CreateHouse(ctx context.Context,req *pb.CreateHouseReq) (*pb.CreateHouseRes, error)
 	UpdateHouse(ctx context.Context,req *pb.UpdateHouseReq) (*pb.UpdateHouseRes, error)
 	GetAllHouse(ctx context.Context,req *pb.GetallHouseReq) ([]*pb.GetAllHouseRes, error)

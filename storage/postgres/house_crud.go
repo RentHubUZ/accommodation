@@ -19,7 +19,7 @@ type HousesRepository struct {
 	Log *slog.Logger
 }
 
-func NewHousesRepository(db *sql.DB) storage.IUserStorage {
+func NewHousesRepository(db *sql.DB) storage.IHouseStorage {
 	return &HousesRepository{Db: db, Log: logger.NewLogger()}
 }
 

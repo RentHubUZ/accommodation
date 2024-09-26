@@ -8,6 +8,7 @@ import (
 
 type IStorage interface {
 	User() IUserStorage
+	Tariff() ITariffStorage
 	Close()
 }
 

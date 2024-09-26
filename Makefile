@@ -1,25 +1,39 @@
-CURRENT_DIR=$(shell pwd)
-DB_URL=postgres://postgres:pass@localhost:5432/rent_hub_accommodation?sslmode=disable
+CURRENT_DIR := $(shell pwd)
+DATABASE_URL := postgres://postgres:root@localhost:5432/renthub_accommodation?sslmode=disable
 
-proto-gen:
-	./scripts/gen-proto.sh ${CURRENT_DIR}
+run-router:
+	@go run cmd/router/main.go
 
-run :
-	go run cmd/main.go
-  
+run-service:
+	@go run cmd/service/main.go
+
+gen-proto:
+	@./scripts/gen-proto.sh $(CURRENT_DIR)
+
+tidy:
+	@go mod tidy
+	@go mod vendor
+
+mig-create:
+	@if [ -z "$(name)" ]; then \
+		read -p "Enter migration name: " name; \
+	fi; \
+	migrate create -ext sql -dir migrations -seq $$name
+
 mig-up:
-	migrate -path migrations -database ${DB_URL}  -verbose up
+	@migrate -database "$(DATABASE_URL)" -path db/migrations up
 
 mig-down:
-	migrate -path migrations -database ${DB_URL}  -verbose down
+	@migrate -database "$(DATABASE_URL)" -path db/migrations down
 
 mig-force:
-	migrate -path migrations -database ${DB_URL}  -verbose force 1
+	@if [ -z "$(version)" ]; then \
+		read -p "Enter migration version: " version; \
+	fi; \
+	migrate -database "$(DATABASE_URL)" -path db/migrations force $$version
 
-mig-file:
-	migrate create -ext sql -dir migrations -seq create_tables
+permission:
+	@chmod +x scripts/gen-proto.sh
 
 test:
-	go test -v -cover ./...
-tidy:
-	go mod tidy
+	@go test ./storage/postgres

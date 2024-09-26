@@ -48,3 +48,7 @@ func (p *postgresStorage) House() storage.IHouseStorage {
 func (p *postgresStorage) Tariff() storage.ITariffStorage {
 	return NewTariffsRepository(p.db, p.log)
 }
+
+func (p *postgresStorage) TopProperties() storage.ITopPropertiesStorage {
+	return NewTopPropertiesRepository(p.db, p.log)
+}

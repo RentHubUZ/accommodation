@@ -97,20 +97,6 @@ func (t *TopPropertiesRepository) GetAll(ctx context.Context, req *pt.GetAllTopP
 	}, nil
 }
 
-// func (t *TopPropertiesRepository) Update(ctx context.Context, req *pt.UpdateTopPropertyReq) (*pt.UpdateTopPropertyRes, error) {
-//     query := `UPDATE top_properties SET property_id = $1, user_id = $2, start_date = $3, end_date = $4, tariff_name = $5 WHERE id = $6`
-
-//     _, err := t.Db.ExecContext(ctx, query, req.PropertyId, req.UserId, req.StartDate, req.EndDate, req.TariffName, req.Id)
-//     if err != nil {
-//         t.Log.Error(fmt.Sprintf("Error updating top property: %v", err.Error()))
-//         return nil, err
-//     }
-
-//     return &pt.UpdateTopPropertyRes{
-//         Success: true,
-//     }, nil
-// }
-
 func (t *TopPropertiesRepository) Delete(ctx context.Context, req *pt.DeleteTopPropertyReq) (*pt.DeleteTopPropertyRes, error) {
 	query := `DELETE FROM top_properties WHERE id = $1`
 

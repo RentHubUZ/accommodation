@@ -34,6 +34,5 @@ type ITopPropertiesStorage interface {
 	Create(ctx context.Context, req *top.CreateTopPropertyReq) (*top.CreateTopPropertyRes, error)
 	Get(ctx context.Context, req *top.GetTopPropertyReq) (*top.GetTopPropertyRes, error)
 	GetAll(ctx context.Context, req *top.GetAllTopPropertyReq) (*top.GetAllTopPropertyRes, error)
-	// Update(ctx context.Context, req *top.UpdateTopPropertyReq) (*top.UpdateTopPropertyRes, error)
 	Delete(ctx context.Context, req *top.DeleteTopPropertyReq) (*top.DeleteTopPropertyRes, error)
 }

@@ -4,6 +4,7 @@ import (
 	pb "accommodation/genproto/accommodation"
 	pt "accommodation/genproto/tariff"
 	top "accommodation/genproto/top-properties"
+	pay "accommodation/genproto/payment"
 	"context"
 )
 
@@ -11,6 +12,7 @@ type IStorage interface {
 	House() IHouseStorage
 	Tariff() ITariffStorage
 	TopProperties() ITopPropertiesStorage
+	Payment() IPaymentStorage
 	Close()
 }
 
@@ -35,4 +37,11 @@ type ITopPropertiesStorage interface {
 	Get(ctx context.Context, req *top.GetTopPropertyReq) (*top.GetTopPropertyRes, error)
 	GetAll(ctx context.Context, req *top.GetAllTopPropertyReq) (*top.GetAllTopPropertyRes, error)
 	Delete(ctx context.Context, req *top.DeleteTopPropertyReq) (*top.DeleteTopPropertyRes, error)
+}
+
+type IPaymentStorage interface {
+	Create(ctx context.Context, req *pay.CreatePaymentReq) (*pay.CreatePaymentRes, error)
+	Get(ctx context.Context, req *pay.GetPaymentReq) (*pay.GetPaymentRes, error)
+	GetAll(ctx context.Context, req *pay.GetAllPaymentReq) (*pay.GetAllPaymentRes, error)
+	Delete(ctx context.Context, req *pay.DeletePaymentReq) (*pay.DeletePaymentRes, error)
 }

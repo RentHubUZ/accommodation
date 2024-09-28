@@ -52,3 +52,7 @@ func (p *postgresStorage) Tariff() storage.ITariffStorage {
 func (p *postgresStorage) TopProperties() storage.ITopPropertiesStorage {
 	return NewTopPropertiesRepository(p.db, p.log)
 }
+
+func (p *postgresStorage) Payment() storage.IPaymentStorage {
+	return NewPaymentRepository(p.db, p.log)
+}

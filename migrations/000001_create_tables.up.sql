@@ -1,6 +1,6 @@
 CREATE EXTENSION IF NOT EXISTS postgis;
 
-CREATE TABLE "properties" (
+CREATE TABLE IF NOT EXISTS "properties" (
   "id" UUID PRIMARY KEY DEFAULT (gen_random_uuid()),
   "owner_id" UUID NOT NULL,
   "address" VARCHAR(255) NOT NULL,

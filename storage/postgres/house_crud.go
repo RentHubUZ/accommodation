@@ -2,7 +2,7 @@ package postgres
 
 import (
 	pb "accommodation/genproto/accommodation"
-	"accommodation/pkg/logger"
+	"accommodation/internal/logs"
 	"accommodation/storage"
 	"context"
 	"database/sql"

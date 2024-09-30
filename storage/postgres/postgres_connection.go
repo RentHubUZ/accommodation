@@ -1,11 +1,10 @@
 package postgres
 
 import (
-	"accommodation/internal/config"
+	"accommodation/config"
 	"accommodation/storage"
 	"database/sql"
 	"fmt"
-	"log"
 	"log/slog"
 
 	_ "github.com/lib/pq"
@@ -23,7 +22,8 @@ func NewPostgresStorage(db *sql.DB, log *slog.Logger) storage.IStorage {
 	}
 }
 
-func ConnectionDb(conf *config.Config) (*sql.DB, error) {
+func ConnectionDb() (*sql.DB, error) {
+	conf := config.Load()
 	conDb := fmt.Sprintf("host=%s port=%d user=%s dbname=%s password=%s sslmode=disable", conf.DB_HOST, conf.DB_PORT, conf.DB_USER, conf.DB_NAME, conf.DB_PASSWORD)
 	db, err := sql.Open("postgres", conDb)
 	if err != nil {
@@ -33,7 +33,6 @@ func ConnectionDb(conf *config.Config) (*sql.DB, error) {
 	if err := db.Ping(); err != nil {
 		return nil, err
 	}
-	log.Printf("|------------------------------------------------ Database connected on port: %d ------------------------------------------------|", conf.DB_PORT)
 
 	return db, nil
 }

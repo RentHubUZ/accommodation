@@ -18,6 +18,7 @@ type PaymentRepository struct {
 func NewPaymentRepository(db *sql.DB, log *slog.Logger) storage.IPaymentStorage {
 	return &PaymentRepository{Db: db, Log: log}
 }
+
 // Get payment by ID
 func (r *PaymentRepository) Get(ctx context.Context, req *pt.GetPaymentReq) (*pt.GetPaymentRes, error) {
 	query := "SELECT id, amount, status, transaction_date FROM Payments WHERE id = $1"
@@ -29,7 +30,7 @@ func (r *PaymentRepository) Get(ctx context.Context, req *pt.GetPaymentReq) (*pt
 		if err == sql.ErrNoRows {
 			return nil, fmt.Errorf("payment not found")
 		}
-		r.Log.Error("error fetching payment", slog.Any("error", err))
+		r.Log.Error("error fetching payment", err)
 		return nil, err
 	}
 
@@ -43,7 +44,7 @@ func (r *PaymentRepository) GetAll(ctx context.Context, req *pt.GetAllPaymentReq
 
 	rows, err := r.Db.QueryContext(ctx, query, req.Limit, offset)
 	if err != nil {
-		r.Log.Error("error fetching payments", slog.Any("error", err))
+		r.Log.Error("error fetching payments", err)
 		return nil, err
 	}
 	defer rows.Close()
@@ -52,14 +53,14 @@ func (r *PaymentRepository) GetAll(ctx context.Context, req *pt.GetAllPaymentReq
 	for rows.Next() {
 		var payment pt.Payment
 		if err := rows.Scan(&payment.Id, &payment.Amount, &payment.Status, &payment.TransactionDate); err != nil {
-			r.Log.Error("error scanning payment row", slog.Any("error", err))
+			r.Log.Error("error scanning payment row", err)
 			return nil, err
 		}
 		payments = append(payments, &payment)
 	}
 
 	if err := rows.Err(); err != nil {
-		r.Log.Error("error in payment rows", slog.Any("error", err))
+		r.Log.Error("error in payment rows", err)
 		return nil, err
 	}
 
@@ -72,7 +73,7 @@ func (r *PaymentRepository) Create(ctx context.Context, req *pt.CreatePaymentReq
 	var id string
 	err := r.Db.QueryRowContext(ctx, query, req.Amount, req.Status, req.TransactionDate).Scan(&id)
 	if err != nil {
-		r.Log.Error("error creating payment", slog.Any("error", err))
+		r.Log.Error("error creating payment", err)
 		return nil, err
 	}
 
@@ -84,13 +85,13 @@ func (r *PaymentRepository) Delete(ctx context.Context, req *pt.DeletePaymentReq
 	query := "DELETE FROM Payments WHERE id = $1"
 	result, err := r.Db.ExecContext(ctx, query, req.Id)
 	if err != nil {
-		r.Log.Error("error deleting payment", slog.Any("error", err))
+		r.Log.Error("error deleting payment", err)
 		return nil, err
 	}
 
 	rowsAffected, err := result.RowsAffected()
 	if err != nil {
-		r.Log.Error("error getting rows affected", slog.Any("error", err))
+		r.Log.Error("error getting rows affected", err)
 		return nil, err
 	}
 

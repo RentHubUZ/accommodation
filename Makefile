@@ -1,5 +1,5 @@
 CURRENT_DIR := $(shell pwd)
-DATABASE_URL := postgres://postgres:root@localhost:5432/renthub_accommodation?sslmode=disable
+DATABASE_URL := postgres://postgres:root@localhost:5432/rent_hub_accommodation?sslmode=disable
 
 run-router:
 	@go run cmd/router/main.go
@@ -21,16 +21,16 @@ mig-create:
 	migrate create -ext sql -dir migrations -seq $$name
 
 mig-up:
-	@migrate -database "$(DATABASE_URL)" -path db/migrations up
+	@migrate -database "$(DATABASE_URL)" -path migrations up
 
 mig-down:
-	@migrate -database "$(DATABASE_URL)" -path db/migrations down
+	@migrate -database "$(DATABASE_URL)" -path migrations down
 
 mig-force:
 	@if [ -z "$(version)" ]; then \
 		read -p "Enter migration version: " version; \
 	fi; \
-	migrate -database "$(DATABASE_URL)" -path db/migrations force $$version
+	migrate -database "$(DATABASE_URL)" -path migrations force $$version
 
 permission:
 	@chmod +x scripts/gen-proto.sh

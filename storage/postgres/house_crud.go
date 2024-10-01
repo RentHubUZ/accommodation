@@ -54,7 +54,7 @@ func (h *HousesRepository) CreateHouse(ctx context.Context, req *pb.CreateHouseR
 		return nil, err
 	}
 
-	query_property_images := `insert into propertyimages (
+	query_property_images := `insert into property_images (
 									id, property_id, image_url, uploaded_at
 								) values (
 									$1, $2, $3, $4)`
@@ -231,7 +231,7 @@ func (h *HousesRepository) UpdateHouse(ctx context.Context, req *pb.UpdateHouseR
 	}
 
 	if len(req.ImageUrl) > 0 {
-		query_delete_images := `DELETE FROM propertyimages WHERE property_id = $1`
+		query_delete_images := `DELETE FROM property_images WHERE property_id = $1`
 		_, err = tx.ExecContext(ctx, query_delete_images, req.Id)
 		if err != nil {
 			tx.Rollback()
@@ -239,7 +239,7 @@ func (h *HousesRepository) UpdateHouse(ctx context.Context, req *pb.UpdateHouseR
 			return nil, err
 		}
 
-		query_insert_image := `INSERT INTO propertyimages (id, property_id, image_url, uploaded_at) VALUES ($1, $2, $3, NOW())`
+		query_insert_image := `INSERT INTO property_images (id, property_id, image_url, uploaded_at) VALUES ($1, $2, $3, NOW())`
 		for _, imageUrl := range req.ImageUrl {
 			_, err := tx.ExecContext(ctx, query_insert_image, uuid.NewString(), req.Id, imageUrl)
 			if err != nil {
@@ -276,7 +276,7 @@ func (h *HousesRepository) GetAllHouse(ctx context.Context, req *pb.GetallHouseR
 					 p.lease_terms, p.lease_duration, p.top_status, 
 					 ST_X(p.location::geometry) as latitude, ST_Y(p.location::geometry) as longitude, 
 					 p.created_at, p.updated_at,
-					 ARRAY(SELECT image_url FROM propertyimages WHERE property_id = p.id) as image_url
+					 ARRAY(SELECT image_url FROM property_images WHERE property_id = p.id) as image_url
 			  FROM properties p
 			  WHERE p.deleted_at IS NULL
 			  ORDER BY p.created_at DESC
@@ -324,7 +324,7 @@ func (h *HousesRepository) GetByIdHouse(ctx context.Context, req *pb.GetByIdHous
 					 p.roommate_count, p.lease_terms, p.lease_duration, p.top_status, 
 					 ST_X(p.location::geometry) as latitude, ST_Y(p.location::geometry) as longitude, 
 					 p.created_at, p.updated_at,
-					 ARRAY(SELECT image_url FROM propertyimages WHERE property_id = p.id) as image_url
+					 ARRAY(SELECT image_url FROM property_images WHERE property_id = p.id) as image_url
 			  FROM properties p
 			  WHERE p.id = $1 AND deleted_at IS NULL`
 
@@ -354,7 +354,7 @@ func (h *HousesRepository) GetByIdHouse(ctx context.Context, req *pb.GetByIdHous
 
 func (h *HousesRepository) DeleteHouse(ctx context.Context, req *pb.DeleteHouseReq) (*pb.DeleteHouseRes, error) {
 	query_property_image_url := `update 
-								propertyimages
+								property_images
 							set 
 								deleted_at = $1
 							where 

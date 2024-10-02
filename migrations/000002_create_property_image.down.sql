@@ -1,1 +1,1 @@
-drop table if EXISTS PropertyImages;
+drop table if EXISTS property_images;

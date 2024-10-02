@@ -1,16 +1,16 @@
 package main
 
 import (
-	"accommodation/internal/config"
-	"accommodation/internal/logs"
-	"accommodation/service"
-	"accommodation/storage/postgres"
-	"log"
-	"net"
 	ph "accommodation/genproto/accommodation"
+	pay "accommodation/genproto/payment"
 	pt "accommodation/genproto/tariff"
 	top "accommodation/genproto/top-properties"
-	pay "accommodation/genproto/payment"
+	"accommodation/internal/config"
+	logger "accommodation/internal/logs"
+	"accommodation/internal/storage/postgres"
+	"accommodation/internal/service"
+	"log"
+	"net"
 
 	_ "github.com/lib/pq"
 
@@ -35,7 +35,6 @@ func main() {
 	PaymentService := service.NewPaymentService(db, logs)
 	TopService := service.NewTopPropertiesService(db, logs)
 	TariffService := service.NewTariffService(db, logs)
-
 
 	server := grpc.NewServer()
 	ph.RegisterAccommodationServiceServer(server, HouseService)

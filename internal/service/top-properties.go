@@ -2,8 +2,8 @@ package service
 
 import (
 	pb "accommodation/genproto/top-properties"
-	"accommodation/storage"
-	"accommodation/storage/postgres"
+	"accommodation/internal/storage"
+	"accommodation/internal/storage/postgres"
 	"context"
 	"database/sql"
 	"fmt"

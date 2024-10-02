@@ -1,7 +1,7 @@
 package postgres
 
 import (
-	"accommodation/storage"
+	"accommodation/internal/storage"
 	"context"
 	"database/sql"
 	"fmt"

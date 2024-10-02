@@ -3,7 +3,7 @@ package postgres
 import (
 	pb "accommodation/genproto/accommodation"
 	"accommodation/internal/logs"
-	"accommodation/storage"
+	"accommodation/internal/storage"
 	"context"
 	"database/sql"
 	"fmt"

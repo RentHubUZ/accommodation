@@ -2,7 +2,7 @@ package postgres
 
 import (
 	"accommodation/internal/config"
-	"accommodation/storage"
+	"accommodation/internal/storage"
 	"database/sql"
 	"fmt"
 	"log"

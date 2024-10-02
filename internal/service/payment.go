@@ -2,8 +2,8 @@ package service
 
 import (
 	pb "accommodation/genproto/payment"
-	"accommodation/storage"
-	"accommodation/storage/postgres"
+	"accommodation/internal/storage"
+	"accommodation/internal/storage/postgres"
 	"context"
 	"database/sql"
 	"fmt"
@@ -37,7 +37,7 @@ func (s *PaymentService) Get(ctx context.Context, req *pb.GetPaymentReq) (*pb.Ge
 	if err != nil {
 		s.Log.Error(fmt.Sprintf("Error getting payment: %v", err.Error()))
 		return nil, err
-	}	
+	}
 	return res, err
 }
 

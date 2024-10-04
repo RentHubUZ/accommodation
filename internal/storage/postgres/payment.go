@@ -5,7 +5,10 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"log"
 	"log/slog"
+	"strconv"
+	"time"
 
 	pt "accommodation/genproto/payment"
 )
@@ -18,6 +21,7 @@ type PaymentRepository struct {
 func NewPaymentRepository(db *sql.DB, log *slog.Logger) storage.IPaymentStorage {
 	return &PaymentRepository{Db: db, Log: log}
 }
+
 // Get payment by ID
 func (r *PaymentRepository) Get(ctx context.Context, req *pt.GetPaymentReq) (*pt.GetPaymentRes, error) {
 	query := "SELECT id, amount, status, transaction_date FROM Payments WHERE id = $1"
@@ -70,7 +74,14 @@ func (r *PaymentRepository) GetAll(ctx context.Context, req *pt.GetAllPaymentReq
 func (r *PaymentRepository) Create(ctx context.Context, req *pt.CreatePaymentReq) (*pt.CreatePaymentRes, error) {
 	query := "INSERT INTO Payments (amount, status, transaction_date) VALUES ($1, $2, $3) RETURNING id"
 	var id string
-	err := r.Db.QueryRowContext(ctx, query, req.Amount, req.Status, req.TransactionDate).Scan(&id)
+
+	amount, err := strconv.ParseFloat(req.Amount, 64)
+	if err != nil {
+		log.Fatal("Invalid amount format")
+	}
+
+	newtime := time.Now()
+	err = r.Db.QueryRowContext(ctx, query, amount, req.Status, newtime).Scan(&id)
 	if err != nil {
 		r.Log.Error("error creating payment", slog.Any("error", err))
 		return nil, err

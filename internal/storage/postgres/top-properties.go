@@ -8,7 +8,7 @@ import (
 	"log/slog"
 	"time"
 
-	pt "accommodation/genproto/top-properties"
+	pt "accommodation/genproto/top_properties"
 )
 
 type TopPropertiesRepository struct {

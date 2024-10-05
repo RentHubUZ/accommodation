@@ -6,6 +6,7 @@ import (
 	"database/sql"
 	"fmt"
 	"log/slog"
+	"time"
 
 	pt "accommodation/genproto/payment"
 )
@@ -70,7 +71,7 @@ func (r *PaymentRepository) GetAll(ctx context.Context, req *pt.GetAllPaymentReq
 func (r *PaymentRepository) Create(ctx context.Context, req *pt.CreatePaymentReq) (*pt.CreatePaymentRes, error) {
 	query := "INSERT INTO Payments (amount, status, transaction_date) VALUES ($1, $2, $3) RETURNING id"
 	var id string
-	err := r.Db.QueryRowContext(ctx, query, req.Amount, req.Status, req.TransactionDate).Scan(&id)
+	err := r.Db.QueryRowContext(ctx, query, req.Amount, req.Status, time.Now().Format("2006-01-02")).Scan(&id)
 	if err != nil {
 		r.Log.Error("error creating payment", slog.Any("error", err))
 		return nil, err

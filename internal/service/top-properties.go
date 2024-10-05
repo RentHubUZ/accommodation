@@ -1,7 +1,7 @@
 package service
 
 import (
-	pb "accommodation/genproto/top-properties"
+	pb "accommodation/genproto/top_properties"
 	"accommodation/internal/storage"
 	"accommodation/internal/storage/postgres"
 	"context"

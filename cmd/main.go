@@ -4,7 +4,7 @@ import (
 	ph "accommodation/genproto/accommodation"
 	pay "accommodation/genproto/payment"
 	pt "accommodation/genproto/tariff"
-	top "accommodation/genproto/top-properties"
+	top "accommodation/genproto/top_properties"
 	"accommodation/internal/config"
 	logger "accommodation/internal/logs"
 	"accommodation/internal/storage/postgres"

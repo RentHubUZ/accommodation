@@ -3,7 +3,7 @@ package storage
 import (
 	pb "accommodation/genproto/accommodation"
 	pt "accommodation/genproto/tariff"
-	top "accommodation/genproto/top-properties"
+	top "accommodation/genproto/top_properties"
 	pay "accommodation/genproto/payment"
 	"context"
 )

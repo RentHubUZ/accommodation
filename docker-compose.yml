@@ -1,0 +1,51 @@
+version: '3.8'
+
+services:
+  postgres-db:
+    container_name: postgres
+    image: postgis/postgis:15-3.3  # PostGIS o'rnatilgan rasm
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=1234
+      - POSTGRES_DB=rent_hub_accomodation
+    ports:
+      - "5433:5432"
+    volumes:
+      - db:/var/lib/postgresql/data  # To'g'ri volume yo'li
+    networks:
+      - renthub
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  migrate:
+    image: migrate/migrate
+    networks:
+      - renthub
+    volumes:
+      - ./migrations:/migrations
+    depends_on:
+      postgres-db:
+        condition: service_healthy
+    command: ["-path", "./migrations", "-database", "postgres://postgres:1234@postgres:5432/rent_hub_accomodation?sslmode=disable", "up"]
+
+  accommadationservice:
+    container_name: accommadation
+    build: .
+    ports:
+      - "9999:9999"
+    networks:
+     - renthub
+    depends_on:
+      postgres-db:
+        condition: service_healthy
+      migrate:
+        condition: service_started
+
+networks:
+  renthub:
+
+volumes:
+  db:

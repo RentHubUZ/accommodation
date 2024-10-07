@@ -1,7 +1,7 @@
 package test
 
 import (
-	top_properties "accommodation/genproto/top-properties"
+	top_properties "accommodation/genproto/top_properties"
 	"accommodation/internal/config"
 	logger "accommodation/internal/logs"
 	"accommodation/internal/storage/postgres"

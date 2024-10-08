@@ -9,7 +9,7 @@ services:
       - POSTGRES_PASSWORD=1234
       - POSTGRES_DB=rent_hub_accomodation
     ports:
-      - "5433:5432"
+      - "5435:5432"
     volumes:
       - db:/var/lib/postgresql/data  # To'g'ri volume yo'li
     networks:

@@ -30,7 +30,7 @@ jobs:
           script: |
             if [ -d "renthub" ]; then
               echo "Directory exists. Pulling latest changes..."
-              cd renthub/accomodation
+              cd renthub/accommodation
               git pull
             else
               echo "Directory does not exist. Cloning repository..."

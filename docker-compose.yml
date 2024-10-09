@@ -46,6 +46,7 @@ services:
 
 networks:
   renthub:
+    external: true
 
 volumes:
   db:
